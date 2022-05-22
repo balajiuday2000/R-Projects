@@ -1,0 +1,251 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+download.file(url = "https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv",
+  destfile = "gapminderdata.csv")
+```
+```{r}
+library(dplyr)
+data <- read_csv("gapminderdata.csv", show_col_types = FALSE)
+```
+```{r}
+summary(data)
+```
+```{r}
+unique(data$continent)
+```
+```{r}
+australia <- filter(data, country == "Australia")
+head(australia)
+```
+```{r}
+life80 <- data %>% filter(lifeExp > 80)
+head(life80)
+```
+```{r}
+data %>% 
+  arrange(gdpPercap) %>% 
+  head()
+```
+```{r}
+data %>%
+  filter(year == 1997) %>% 
+  select(year, country, gdpPercap) %>% 
+  head()
+```
+```{r}
+data %>% 
+  filter(year == 2002, country == "Eritrea") %>% 
+  select(lifeExp)
+```
+```{r}
+data %>% 
+  mutate(totalGDP = gdpPercap * pop,
+         GDPMil = totalGDP / 10^6)
+```
+```{r}
+data %>% 
+  summarise(meanGDP = mean(gdpPercap))
+```
+```{r}
+data %>% 
+  group_by(continent) %>% 
+  filter(year == 2007) %>% 
+  summarise(meanLifeExp = mean(lifeExp))
+```
+```{r}
+data %>% 
+  group_by(country) %>% 
+  summarise(maxLifeExp = max(lifeExp)) %>% 
+  arrange(desc(maxLifeExp))
+```
+```{r}
+library(ggplot2)
+data %>% 
+  filter(continent == "Europe") %>% 
+  group_by(year) %>% 
+  summarise(sum = sum(pop)) %>% 
+  ggplot(aes(x = year, y = sum)) + geom_line()
+  
+```
+```{r}
+ggplot(msleep, aes(x = conservation)) +
+  geom_bar()
+```
+```{r}
+ggplot(economics, aes(x = date, y = unemploy)) +
+  geom_point()
+```
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_smooth()+
+  geom_point(aes(color = class))
+```
+```{r}
+ggplot(economics, aes(x = date, y = unemploy)) +
+  geom_point(aes(color = unemploy)) +
+  geom_smooth()
+```
+```{r}
+ggplot(diamonds, aes(x = cut, fill = clarity)) +
+  geom_bar()
+```
+```{r}
+ggplot(diamonds, aes(x = cut)) +
+  geom_bar(fill = "red") +
+  labs(title = "Diamonds", x = "Quality", y = "Count") +
+  coord_flip() +
+  theme_minimal()
+```
+```{r}
+data <- read_csv("gapminderdata.csv")
+ggplot(data, aes(x = year, y = pop, color = continent)) +
+  geom_point() +
+  scale_color_brewer(palette = "Set1")
+```
+```{r}
+p <- ggplot(data, aes(x = year, y = pop, color = continent)) +
+  geom_point()
+p +
+  scale_y_log10()
+```
+```{r}
+unique_years <- unique(data$year)
+p +
+  scale_x_continuous(breaks = unique_years) +
+  scale_y_continuous(breaks = c(0, 10000000, 200000000, 500000000, 1000000000),
+                     labels = c("0", "1M", "2M", "5M", "1B"))
+```
+```{r}
+p +
+  ylim(c(0, 36000000))
+```
+
+
+```{r}
+ggplot(data, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(bins = 10, position = "dodge")
+```
+```{r}
+ggplot(data, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(bins = 40) +
+  facet_wrap(~continent) +
+  theme(legend.position = "None")
+```
+```{r}
+download.file(url = "https://gitlab.com/stragu/DSH/raw/master/R/tidyverse_next_steps/data_wb_climate.csv",
+              destfile = "data_wb_climate.csv")
+
+```
+```{r}
+data <- read_csv("data_wb_climate.csv", na = "..")
+```
+```{r}
+head(data)
+```
+```{r}
+# Lengthen the data
+data_long <- pivot_longer(data, 
+                          `1990`:`2011`,
+                          names_to = "Year",
+                          values_to = "Value") %>% 
+  mutate(Year = as.integer(Year))
+data_long
+```
+```{r}
+# Widen the data
+codes <- unique(data_long[,c("Series code", "Series name")])
+head(codes)
+```
+```{r}
+data_tidy <- data_long %>% 
+  select(-`Series name`, -SCALE, -Decimals) %>%  
+  pivot_wider(names_from = `Series code`, values_from = Value )
+head(data_tidy)
+```
+```{r}
+groups <- c("Europe & Central Asia",
+            "East Asia & Pacific",
+            "Euro area",
+            "High income",
+            "Lower middle income",
+            "Low income",
+            "Low & middle income",
+            "Middle income",
+            "Middle East & North Africa",
+            "Latin America & Caribbean",
+            "South Asia",
+            "Small island developing states",
+            "Sub-Saharan Africa",
+            "Upper middle income",
+            "World")
+
+data_tidy <- data_tidy %>% 
+  filter(!`Country name` %in% groups)
+
+head(data_tidy)
+```
+```{r}
+output <- vector("double", length = ncol(mtcars))
+for (i in seq_along(mtcars)){
+  output[i] <- median(mtcars[[i]])
+}
+output
+```
+```{r}
+car_medians <- map_dbl(mtcars, median)
+car_medians
+```
+```{r}
+map_lgl(starwars, is.character)
+```
+```{r}
+map_dbl(mtcars, mean, trim = 0.2)
+```
+```{r}
+map_dbl(mtcars, ~round(mean(.x)))
+```
+```{r}
+map_lgl(mtcars, ~ max(.x) > 3*min(.x))
+```
+```{r}
+map_int(starwars, ~ length(unique(.x)))
+```
+```{r}
+mtcars %>% 
+  split(.$cyl) %>% 
+  map(summary)
+```
+```{r}
+iris %>% 
+  discard(is.factor) %>% 
+  map_dbl(~mean(.x))
+```
+```{r}
+# Keep all columns but apply only to some columns
+iris %>% 
+  map_if(is.numeric, round) %>% 
+  str()
+``` 
+```{r}
+ggplot(esoph, aes(x = ncontrols)) +
+  geom_histogram() +
+  facet_wrap(esoph$agegp) +
+  theme(legend.position = "None")
+
+```
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

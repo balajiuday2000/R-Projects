@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Objective : A simple app to experiment with obtaining input from user, processing the input and displaying the results.
+
+```{r}
+library(shiny)
+library(shinythemes)
+```
+```{r}
+# Define UI
+ui <- fluidPage(theme = shinytheme('yeti'),
+                
+                navbarPage(
+                  theme = "yeti",
+                  "Name Displayer",
+                  
+                  tabPanel("NavBar 1",
+                    sidebarPanel(
+                      tags$h3("Input :"),
+                      textInput("txt1", " First Name :", ""),
+                      textInput("txt2", "Last Name :", ""),
+                    ),
+                    
+                    mainPanel(
+                      h1("Output :"),
+                      verbatimTextOutput("txtout"),
+                    )
+                  ),
+                  
+                  tabPanel("NavBar 2", "This page is left blank."),
+                  tabPanel("NavBar 3", "This page is left blank.")
+                )
+)
+```
+```{r}
+# Define Server
+server <- function(input, output) {
+  output$txtout <- renderText({ paste(input$txt1, input$txt2) })
+}
+```
+```{r}
+# Define Shiny object
+shinyApp(ui = ui, server = server)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

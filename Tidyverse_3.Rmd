@@ -1,0 +1,112 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+data <- as.tibble(mtcars)
+```
+```{r}
+head(data)
+```
+```{r}
+data <- tibble(x = 1:3, y = c("a","b","c"), z = c("d", "e", "f"))
+head(data)
+```
+```{r}
+data <- tribble(~x,~y,~z,
+                1,"a","d",
+                2,"b","e",
+                3,"c","f")
+head(data)
+```
+```{r}
+v <- c(a = 5, b = 7, c = 6)
+enframe(v)
+```
+```{r}
+data1 <- pivot_longer(data, cols = c("y", "z"), names_to = "name", values_to = "value")
+data1
+```
+```{r}
+pivot_wider(data1, names_from = "name", values_from = "value")
+```
+```{r}
+data1 <- unite(data, "x", "y", col = "xy", sep = " ")
+data1
+```
+```{r}
+separate(data1, "xy", sep = " ", into = c("x", "y"))
+```
+```{r}
+separate_rows(data1, "xy", sep = " ")
+```
+```{r}
+data <- tibble(x1 = c("A", "B", "B"), x2 = c(1,1,2), x3 = c(3,4,3))
+data
+expand(data, x1, x2)
+complete(data, x1, x2)
+```
+```{r}
+storms
+n_storms <- storms %>% 
+  group_by(name) %>% 
+  nest()
+```
+```{r}
+n_storms$data[[1]]
+```
+```{r}
+n_storms <- storms %>% 
+  nest(data = -name)
+n_storms$data[[1]]
+```
+```{r}
+n_storms %>% 
+  unnest(data)
+```
+```{r}
+row_fn <- n_storms %>% 
+ rowwise() %>%
+ mutate(n = list(dim(data)))
+row_fn$data[[1]]
+row_fn$n[[1]]
+```
+```{r}
+row_fn <- n_storms %>% 
+ rowwise() %>%
+ mutate(n = nrow(data))
+row_fn
+```
+```{r}
+x <- tibble(A = c("a", "b", "c"), B = c("t", "u", "v"), C = c(1,2,3))
+y <- tibble(A = c("a", "b", "d"), B = c("t", "u", "w"), D = c(3,2,1))
+```
+```{r}
+left_join(x, y)
+```
+```{r}
+right_join(x, y)
+```
+```{r}
+inner_join(x, y)
+```
+```{r}
+full_join(x, y)
+```
+```{r}
+semi_join(x, y)
+```
+```{r}
+anti_join(x, y)
+````
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
